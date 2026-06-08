@@ -6,8 +6,8 @@ A full-stack job portal application built with Laravel 13 (backend) and Next.js 
 
 - **Backend:** Laravel 13 API with Sanctum authentication
 - **Frontend:** Next.js 15 with App Router, TypeScript, Tailwind CSS
-- **Database:** MySQL
-- **Containerization:** Docker (PHP, Nginx, MySQL, Node.js)
+- **Database:** PostgreSQL
+- **Containerization:** Docker (PHP, Nginx, PostgreSQL, Node.js)
 
 ## Project Structure
 
@@ -52,8 +52,7 @@ job-portal/
 │   └── lib/
 ├── docker/                 # Docker configuration
 │   ├── php/
-│   ├── nginx/
-│   └── mysql/
+│   └── nginx/
 ├── docker-compose.yml
 └── README.md
 ```
@@ -65,7 +64,7 @@ job-portal/
 - PHP 8.4+
 - Composer
 - Node.js 22+
-- MySQL 8.0+
+- PostgreSQL 17+
 - Docker & Docker Compose (optional)
 
 ### Local Development
@@ -86,9 +85,12 @@ cp .env.example .env
 php artisan key:generate
 
 # Configure database in .env
+# DB_CONNECTION=pgsql
+# DB_HOST=127.0.0.1
+# DB_PORT=5432
 # DB_DATABASE=job_portal
-# DB_USERNAME=root
-# DB_PASSWORD=
+# DB_USERNAME=postgres
+# DB_PASSWORD=postgres
 
 # Run migrations
 php artisan migrate
@@ -134,7 +136,7 @@ docker-compose logs -f
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000/api
 - **Health Check:** http://localhost:8000/api/health
-- **phpMyAdmin:** http://localhost:8080
+- **PostgreSQL:** localhost:5432
 
 ## Testing
 

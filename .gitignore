@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# PHP
+vendor/
+*.log
+.env
+
+# Node
+node_modules/
+.next/
+
+# Docker
+mysql_data/
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace

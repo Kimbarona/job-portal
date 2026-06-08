@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/backend
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - jobportal
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./backend:/var/www/backend
+    depends_on:
+      - mysql
+    networks:
+      - jobportal
+
+  mysql:
+    build:
+      context: .
+      dockerfile: docker/mysql/Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: job_portal
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: jobportal
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - jobportal
+
+  node:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/var/www/frontend
+      - /var/www/frontend/node_modules
+    depends_on:
+      - php
+    networks:
+      - jobportal
+
+volumes:
+  mysql_data:
+
+networks:
+  jobportal:
+    driver: bridge

@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Job Portal",
-  description: "Find your dream job or hire the best talent",
+  title: "WorkBridge | Skilled Workers Marketplace",
+  description:
+    "WorkBridge is a skilled workers marketplace under development, collecting early access feedback from clients and skilled workers.",
 };
 
 export default function RootLayout({

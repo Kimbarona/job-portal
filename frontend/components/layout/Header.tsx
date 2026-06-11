@@ -2,31 +2,37 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="mx-auto max-w-7xl flex items-center justify-between px-4 py-4">
-        <Link href="/" className="text-xl font-bold text-gray-900">
-          JobPortal
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-2 text-slate-950">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 text-sm font-bold text-white">
+            WB
+          </span>
+          <span className="text-lg font-bold">WorkBridge</span>
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="hidden items-center gap-6 sm:flex">
           <Link
-            href="/health"
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            href="/#features"
+            className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-700"
           >
-            Health
+            Features
           </Link>
           <Link
-            href="/login"
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            href="/#how-it-works"
+            className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-700"
           >
-            Login
+            How it works
           </Link>
-          <Link
-            href="/register"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white font-medium hover:bg-blue-700 transition-colors"
-          >
-            Register
+          <Link href="/#survey" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-700">
+            Survey
           </Link>
         </nav>
+        <Link
+          href="/#survey"
+          className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
+        >
+          Early access
+        </Link>
       </div>
     </header>
   );

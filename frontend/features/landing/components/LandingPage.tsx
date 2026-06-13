@@ -3,6 +3,7 @@ import FAQSection from "@/features/landing/components/FAQSection";
 import HeroSection from "@/features/landing/components/HeroSection";
 import HowItWorksSection from "@/features/landing/components/HowItWorksSection";
 import ProblemSection from "@/features/landing/components/ProblemSection";
+import ScrollRevealController from "@/features/landing/components/ScrollRevealController";
 import ServiceCategoriesSection from "@/features/landing/components/ServiceCategoriesSection";
 import SolutionSection from "@/features/landing/components/SolutionSection";
 import SurveyForm from "@/features/landing/components/SurveyForm";
@@ -10,14 +11,21 @@ import SurveyForm from "@/features/landing/components/SurveyForm";
 export default function LandingPage() {
   return (
     <>
+      <ScrollRevealController />
       <HeroSection />
-      <AudienceSection />
-      <ProblemSection />
+      <div id="why-workbridge">
+        <AudienceSection />
+        <ProblemSection />
+      </div>
       <SolutionSection />
       <HowItWorksSection />
-      <ServiceCategoriesSection />
+      <div id="services">
+        <ServiceCategoriesSection />
+      </div>
       <SurveyForm />
-      <FAQSection />
+      <div id="faq">
+        <FAQSection />
+      </div>
     </>
   );
 }

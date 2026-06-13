@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { isAxiosError } from "axios";
 import { SERVICE_CATEGORIES } from "@/features/landing/constants/serviceCategories";
@@ -39,12 +39,30 @@ interface ValidationErrorResponse {
 }
 
 const importantFeatureOptions = [
-  "Verified worker profiles",
-  "Ratings and reviews",
-  "Portfolio/gallery",
-  "Location-based search",
-  "Fast inquiry or booking requests",
-  "Clear pricing or estimates",
+  {
+    value: "Verified worker profiles",
+    label: "Verified professional profiles",
+  },
+  {
+    value: "Ratings and reviews",
+    label: "Ratings and reviews",
+  },
+  {
+    value: "Portfolio/gallery",
+    label: "Portfolio/gallery",
+  },
+  {
+    value: "Location-based search",
+    label: "Local service discovery",
+  },
+  {
+    value: "Fast inquiry or booking requests",
+    label: "Fast inquiry or booking requests",
+  },
+  {
+    value: "Clear pricing or estimates",
+    label: "Clear pricing or estimates",
+  },
 ];
 
 const inputClass =
@@ -99,6 +117,16 @@ export default function SurveyForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<SurveySubmissionData | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const statusRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!submitted && !statusMessage) {
+      return;
+    }
+
+    statusRef.current?.focus({ preventScroll: true });
+    statusRef.current?.scrollIntoView({ block: "center" });
+  }, [submitted, statusMessage]);
 
   const isClientResponse =
     form.user_type === "client" || form.user_type === "both";
@@ -237,7 +265,7 @@ export default function SurveyForm() {
   return (
     <section id="survey" className="bg-slate-950 py-16 text-white sm:py-20">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-        <div>
+        <div data-reveal>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">
             Early access survey
           </p>
@@ -245,9 +273,9 @@ export default function SurveyForm() {
             Help shape WorkBridge before launch.
           </h2>
           <p className="mt-5 text-base leading-7 text-slate-300">
-            Tell us what you need as a client, skilled worker, or both. Your
-            answers will guide the first marketplace features and service
-            categories.
+            Tell us what you need as a client, professional, freelancer, service
+            provider, or trade worker. Your answers will guide the first
+            marketplace features and service categories.
           </p>
           <div className="mt-8 rounded-lg border border-orange-300/25 bg-orange-400/10 p-4 text-sm leading-6 text-orange-50">
             We&apos;ll only use your contact details for WorkBridge early access
@@ -255,374 +283,391 @@ export default function SurveyForm() {
           </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl sm:p-6"
-        >
-          {submitted && (
+        <div data-reveal data-reveal-delay="80">
+          {submitted ? (
             <div
-              className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+              ref={statusRef}
+              tabIndex={-1}
               role="status"
+              className="rounded-lg border border-white/10 bg-white p-6 text-slate-950 shadow-2xl outline-none sm:p-8"
             >
-              Thanks for your feedback. Your response was received as survey
-              #{submitted.id}.
-            </div>
-          )}
-
-          {statusMessage && (
-            <div
-              className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-              role="alert"
-            >
-              {statusMessage}
-            </div>
-          )}
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Name" htmlFor="name" error={errors.name} required>
-              <input
-                id="name"
-                name="name"
-                value={form.name}
-                onChange={handleInputChange}
-                className={inputClass}
-                aria-invalid={Boolean(errors.name)}
-              />
-            </Field>
-
-            <Field
-              label="Location"
-              htmlFor="location"
-              error={errors.location}
-              required
-            >
-              <input
-                id="location"
-                name="location"
-                value={form.location}
-                onChange={handleInputChange}
-                className={inputClass}
-                placeholder="City or service area"
-                aria-invalid={Boolean(errors.location)}
-              />
-            </Field>
-
-            <Field label="Email" htmlFor="email" error={errors.email}>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleInputChange}
-                className={inputClass}
-                placeholder="you@example.com"
-                aria-invalid={Boolean(errors.email)}
-              />
-            </Field>
-
-            <Field label="Mobile" htmlFor="mobile" error={errors.mobile}>
-              <input
-                id="mobile"
-                name="mobile"
-                value={form.mobile}
-                onChange={handleInputChange}
-                className={inputClass}
-                placeholder="Optional if email is provided"
-                aria-invalid={Boolean(errors.mobile)}
-              />
-            </Field>
-
-            <div className="sm:col-span-2">
-              <label className={labelClass} htmlFor="user_type">
-                I am answering as <span className="text-orange-600">*</span>
-              </label>
-              <select
-                id="user_type"
-                name="user_type"
-                value={form.user_type}
-                onChange={handleUserTypeChange}
-                className={inputClass}
-                aria-invalid={Boolean(errors.user_type)}
-              >
-                <option value="client">Client looking for skilled workers</option>
-                <option value="skilled_worker">
-                  Skilled worker looking for clients
-                </option>
-                <option value="both">Both</option>
-              </select>
-              <FieldError error={errors.user_type} />
-            </div>
-          </div>
-
-          {isClientResponse && (
-            <div className="mt-8 border-t border-slate-200 pt-6">
-              <h3 className="text-lg font-semibold text-slate-950">
-                Client needs
+              <h3 className="text-2xl font-bold text-slate-950">
+                Thanks for your feedback.
               </h3>
-              <div className="mt-5">
-                <p className={labelClass}>
-                  Needed services <span className="text-orange-600">*</span>
-                </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {SERVICE_CATEGORIES.map((service) => (
-                    <label
-                      key={service}
-                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={form.needed_services.includes(service)}
-                        onChange={() => handleServiceToggle(service)}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-700"
-                      />
-                      {service}
-                    </label>
-                  ))}
-                </div>
-                <FieldError error={errors.needed_services} />
-              </div>
-
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                <Field
-                  label="Pain point when finding skilled workers"
-                  htmlFor="finding_worker_pain_point"
-                  error={errors.finding_worker_pain_point}
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Your response was received as survey #{submitted.id}.
+              </p>
+              <button
+                type="button"
+                onClick={() => setSubmitted(null)}
+                className="mt-6 inline-flex items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-500"
+              >
+                Submit another response
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl sm:p-6"
+            >
+              {statusMessage && (
+                <div
+                  ref={statusRef}
+                  tabIndex={-1}
+                  className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 outline-none"
+                  role="alert"
                 >
-                  <textarea
-                    id="finding_worker_pain_point"
-                    name="finding_worker_pain_point"
-                    value={form.finding_worker_pain_point}
+                  {statusMessage}
+                </div>
+              )}
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Name" htmlFor="name" error={errors.name} required>
+                  <input
+                    id="name"
+                    name="name"
+                    value={form.name}
                     onChange={handleInputChange}
-                    className={`${inputClass} min-h-28`}
-                    aria-invalid={Boolean(errors.finding_worker_pain_point)}
+                    className={inputClass}
+                    aria-invalid={Boolean(errors.name)}
                   />
                 </Field>
 
-                <div className="grid gap-5">
-                  <Field
-                    label="Likelihood of using WorkBridge"
-                    htmlFor="workbridge_likelihood"
-                    error={errors.workbridge_likelihood}
-                  >
-                    <select
-                      id="workbridge_likelihood"
-                      name="workbridge_likelihood"
-                      value={form.workbridge_likelihood}
-                      onChange={handleInputChange}
-                      className={inputClass}
-                      aria-invalid={Boolean(errors.workbridge_likelihood)}
-                    >
-                      <option value="">Select a rating</option>
-                      <option value="5">5 - Very likely</option>
-                      <option value="4">4 - Likely</option>
-                      <option value="3">3 - Maybe</option>
-                      <option value="2">2 - Unlikely</option>
-                      <option value="1">1 - Not interested</option>
-                    </select>
-                  </Field>
-
-                  <Field
-                    label="Most important feature"
-                    htmlFor="important_feature"
-                    error={errors.important_feature}
-                  >
-                    <select
-                      id="important_feature"
-                      name="important_feature"
-                      value={form.important_feature}
-                      onChange={handleInputChange}
-                      className={inputClass}
-                      aria-invalid={Boolean(errors.important_feature)}
-                    >
-                      <option value="">Select a feature</option>
-                      {importantFeatureOptions.map((feature) => (
-                        <option key={feature} value={feature}>
-                          {feature}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isWorkerResponse && (
-            <div className="mt-8 border-t border-slate-200 pt-6">
-              <h3 className="text-lg font-semibold text-slate-950">
-                Skilled worker details
-              </h3>
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <Field
-                  label="Offered service or skill"
-                  htmlFor="offered_service_skill"
-                  error={errors.offered_service_skill}
+                  label="Location"
+                  htmlFor="location"
+                  error={errors.location}
                   required
                 >
                   <input
-                    id="offered_service_skill"
-                    name="offered_service_skill"
-                    value={form.offered_service_skill}
+                    id="location"
+                    name="location"
+                    value={form.location}
                     onChange={handleInputChange}
                     className={inputClass}
-                    placeholder="Example: Electrician"
-                    aria-invalid={Boolean(errors.offered_service_skill)}
+                    placeholder="City or service area"
+                    aria-invalid={Boolean(errors.location)}
                   />
                 </Field>
 
-                <Field
-                  label="Years of experience"
-                  htmlFor="years_experience"
-                  error={errors.years_experience}
-                >
+                <Field label="Email" htmlFor="email" error={errors.email}>
                   <input
-                    id="years_experience"
-                    name="years_experience"
-                    type="number"
-                    min="0"
-                    max="80"
-                    value={form.years_experience}
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={form.email}
                     onChange={handleInputChange}
                     className={inputClass}
-                    aria-invalid={Boolean(errors.years_experience)}
+                    placeholder="you@example.com"
+                    aria-invalid={Boolean(errors.email)}
                   />
                 </Field>
 
-                <Field
-                  label="Service area"
-                  htmlFor="service_area"
-                  error={errors.service_area}
-                >
+                <Field label="Mobile" htmlFor="mobile" error={errors.mobile}>
                   <input
-                    id="service_area"
-                    name="service_area"
-                    value={form.service_area}
+                    id="mobile"
+                    name="mobile"
+                    value={form.mobile}
                     onChange={handleInputChange}
                     className={inputClass}
-                    placeholder="Cities or neighborhoods covered"
-                    aria-invalid={Boolean(errors.service_area)}
+                    placeholder="Optional if email is provided"
+                    aria-invalid={Boolean(errors.mobile)}
                   />
                 </Field>
 
-                <Field
-                  label="Interested in an online profile?"
-                  htmlFor="online_profile_interest"
-                  error={errors.online_profile_interest}
-                >
+                <div className="sm:col-span-2">
+                  <label className={labelClass} htmlFor="user_type">
+                    I am answering as <span className="text-orange-600">*</span>
+                  </label>
                   <select
-                    id="online_profile_interest"
-                    name="online_profile_interest"
-                    value={form.online_profile_interest}
-                    onChange={handleInputChange}
+                    id="user_type"
+                    name="user_type"
+                    value={form.user_type}
+                    onChange={handleUserTypeChange}
                     className={inputClass}
-                    aria-invalid={Boolean(errors.online_profile_interest)}
+                    aria-invalid={Boolean(errors.user_type)}
                   >
-                    <option value="yes">Yes</option>
-                    <option value="maybe">Maybe</option>
-                    <option value="no">No</option>
+                    <option value="client">Client looking for local services</option>
+                    <option value="skilled_worker">
+                      Professional or service provider looking for clients
+                    </option>
+                    <option value="both">Both</option>
                   </select>
-                </Field>
-
-                <Field
-                  label="Interested in inquiries/bookings?"
-                  htmlFor="inquiries_bookings_interest"
-                  error={errors.inquiries_bookings_interest}
-                >
-                  <select
-                    id="inquiries_bookings_interest"
-                    name="inquiries_bookings_interest"
-                    value={form.inquiries_bookings_interest}
-                    onChange={handleInputChange}
-                    className={inputClass}
-                    aria-invalid={Boolean(errors.inquiries_bookings_interest)}
-                  >
-                    <option value="yes">Yes</option>
-                    <option value="maybe">Maybe</option>
-                    <option value="no">No</option>
-                  </select>
-                </Field>
-
-                <Field
-                  label="Trust concerns or feedback"
-                  htmlFor="trust_concerns_feedback"
-                  error={errors.trust_concerns_feedback}
-                >
-                  <textarea
-                    id="trust_concerns_feedback"
-                    name="trust_concerns_feedback"
-                    value={form.trust_concerns_feedback}
-                    onChange={handleInputChange}
-                    className={`${inputClass} min-h-28`}
-                    aria-invalid={Boolean(errors.trust_concerns_feedback)}
-                  />
-                </Field>
+                  <FieldError error={errors.user_type} />
+                </div>
               </div>
-            </div>
+
+              {isClientResponse && (
+                <div className="mt-8 border-t border-slate-200 pt-6">
+                  <h3 className="text-lg font-semibold text-slate-950">
+                    Client service needs
+                  </h3>
+                  <div className="mt-5">
+                    <p className={labelClass}>
+                      Services you may need <span className="text-orange-600">*</span>
+                    </p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {SERVICE_CATEGORIES.map((service) => (
+                        <label
+                          key={service}
+                          className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={form.needed_services.includes(service)}
+                            onChange={() => handleServiceToggle(service)}
+                            className="h-4 w-4 rounded border-slate-300 text-blue-700"
+                          />
+                          {service}
+                        </label>
+                      ))}
+                    </div>
+                    <FieldError error={errors.needed_services} />
+                  </div>
+
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                    <Field
+                      label="Pain point when hiring local professionals or providers"
+                      htmlFor="finding_worker_pain_point"
+                      error={errors.finding_worker_pain_point}
+                    >
+                      <textarea
+                        id="finding_worker_pain_point"
+                        name="finding_worker_pain_point"
+                        value={form.finding_worker_pain_point}
+                        onChange={handleInputChange}
+                        className={`${inputClass} min-h-28`}
+                        aria-invalid={Boolean(errors.finding_worker_pain_point)}
+                      />
+                    </Field>
+
+                    <div className="grid gap-5">
+                      <Field
+                        label="Likelihood of using WorkBridge"
+                        htmlFor="workbridge_likelihood"
+                        error={errors.workbridge_likelihood}
+                      >
+                        <select
+                          id="workbridge_likelihood"
+                          name="workbridge_likelihood"
+                          value={form.workbridge_likelihood}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          aria-invalid={Boolean(errors.workbridge_likelihood)}
+                        >
+                          <option value="">Select a rating</option>
+                          <option value="5">5 - Very likely</option>
+                          <option value="4">4 - Likely</option>
+                          <option value="3">3 - Maybe</option>
+                          <option value="2">2 - Unlikely</option>
+                          <option value="1">1 - Not interested</option>
+                        </select>
+                      </Field>
+
+                      <Field
+                        label="Most important feature"
+                        htmlFor="important_feature"
+                        error={errors.important_feature}
+                      >
+                        <select
+                          id="important_feature"
+                          name="important_feature"
+                          value={form.important_feature}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          aria-invalid={Boolean(errors.important_feature)}
+                        >
+                          <option value="">Select a feature</option>
+                          {importantFeatureOptions.map((feature) => (
+                            <option key={feature.value} value={feature.value}>
+                              {feature.label}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isWorkerResponse && (
+                <div className="mt-8 border-t border-slate-200 pt-6">
+                  <h3 className="text-lg font-semibold text-slate-950">
+                    Professional or provider details
+                  </h3>
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                    <Field
+                      label="Offered service or skill"
+                      htmlFor="offered_service_skill"
+                      error={errors.offered_service_skill}
+                      required
+                    >
+                      <input
+                        id="offered_service_skill"
+                        name="offered_service_skill"
+                        value={form.offered_service_skill}
+                        onChange={handleInputChange}
+                        className={inputClass}
+                        placeholder="Example: Electrician, photographer, or web developer"
+                        aria-invalid={Boolean(errors.offered_service_skill)}
+                      />
+                    </Field>
+
+                    <Field
+                      label="Years of experience"
+                      htmlFor="years_experience"
+                      error={errors.years_experience}
+                    >
+                      <input
+                        id="years_experience"
+                        name="years_experience"
+                        type="number"
+                        min="0"
+                        max="80"
+                        value={form.years_experience}
+                        onChange={handleInputChange}
+                        className={inputClass}
+                        aria-invalid={Boolean(errors.years_experience)}
+                      />
+                    </Field>
+
+                    <Field
+                      label="Service area"
+                      htmlFor="service_area"
+                      error={errors.service_area}
+                    >
+                      <input
+                        id="service_area"
+                        name="service_area"
+                        value={form.service_area}
+                        onChange={handleInputChange}
+                        className={inputClass}
+                        placeholder="Cities or neighborhoods covered"
+                        aria-invalid={Boolean(errors.service_area)}
+                      />
+                    </Field>
+
+                    <Field
+                      label="Interested in an online profile?"
+                      htmlFor="online_profile_interest"
+                      error={errors.online_profile_interest}
+                    >
+                      <select
+                        id="online_profile_interest"
+                        name="online_profile_interest"
+                        value={form.online_profile_interest}
+                        onChange={handleInputChange}
+                        className={inputClass}
+                        aria-invalid={Boolean(errors.online_profile_interest)}
+                      >
+                        <option value="yes">Yes</option>
+                        <option value="maybe">Maybe</option>
+                        <option value="no">No</option>
+                      </select>
+                    </Field>
+
+                    <Field
+                      label="Interested in inquiries/bookings?"
+                      htmlFor="inquiries_bookings_interest"
+                      error={errors.inquiries_bookings_interest}
+                    >
+                      <select
+                        id="inquiries_bookings_interest"
+                        name="inquiries_bookings_interest"
+                        value={form.inquiries_bookings_interest}
+                        onChange={handleInputChange}
+                        className={inputClass}
+                        aria-invalid={Boolean(errors.inquiries_bookings_interest)}
+                      >
+                        <option value="yes">Yes</option>
+                        <option value="maybe">Maybe</option>
+                        <option value="no">No</option>
+                      </select>
+                    </Field>
+
+                    <Field
+                      label="Trust concerns or feedback"
+                      htmlFor="trust_concerns_feedback"
+                      error={errors.trust_concerns_feedback}
+                    >
+                      <textarea
+                        id="trust_concerns_feedback"
+                        name="trust_concerns_feedback"
+                        value={form.trust_concerns_feedback}
+                        onChange={handleInputChange}
+                        className={`${inputClass} min-h-28`}
+                        aria-invalid={Boolean(errors.trust_concerns_feedback)}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Open feedback
+                </h3>
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                  <Field
+                    label="What do you want to see in WorkBridge?"
+                    htmlFor="desired_features_feedback"
+                    error={errors.desired_features_feedback}
+                  >
+                    <textarea
+                      id="desired_features_feedback"
+                      name="desired_features_feedback"
+                      value={form.desired_features_feedback}
+                      onChange={handleInputChange}
+                      className={`${inputClass} min-h-28`}
+                      aria-invalid={Boolean(errors.desired_features_feedback)}
+                    />
+                  </Field>
+
+                  <Field
+                    label="Concerns or suggestions"
+                    htmlFor="concerns_suggestions"
+                    error={errors.concerns_suggestions}
+                  >
+                    <textarea
+                      id="concerns_suggestions"
+                      name="concerns_suggestions"
+                      value={form.concerns_suggestions}
+                      onChange={handleInputChange}
+                      className={`${inputClass} min-h-28`}
+                      aria-invalid={Boolean(errors.concerns_suggestions)}
+                    />
+                  </Field>
+                </div>
+              </div>
+
+              <div className="hidden" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input
+                  id="website"
+                  name="website"
+                  value={form.website}
+                  onChange={handleInputChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="mt-8">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:bg-orange-300 sm:w-auto"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit early access survey"}
+                </button>
+                <p className={helpClass}>
+                  Email or mobile is required so the WorkBridge team can follow up
+                  when early access is ready.
+                </p>
+              </div>
+            </form>
           )}
-
-          <div className="mt-8 border-t border-slate-200 pt-6">
-            <h3 className="text-lg font-semibold text-slate-950">
-              Open feedback
-            </h3>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <Field
-                label="What do you want to see in WorkBridge?"
-                htmlFor="desired_features_feedback"
-                error={errors.desired_features_feedback}
-              >
-                <textarea
-                  id="desired_features_feedback"
-                  name="desired_features_feedback"
-                  value={form.desired_features_feedback}
-                  onChange={handleInputChange}
-                  className={`${inputClass} min-h-28`}
-                  aria-invalid={Boolean(errors.desired_features_feedback)}
-                />
-              </Field>
-
-              <Field
-                label="Concerns or suggestions"
-                htmlFor="concerns_suggestions"
-                error={errors.concerns_suggestions}
-              >
-                <textarea
-                  id="concerns_suggestions"
-                  name="concerns_suggestions"
-                  value={form.concerns_suggestions}
-                  onChange={handleInputChange}
-                  className={`${inputClass} min-h-28`}
-                  aria-invalid={Boolean(errors.concerns_suggestions)}
-                />
-              </Field>
-            </div>
-          </div>
-
-          <div className="hidden" aria-hidden="true">
-            <label htmlFor="website">Website</label>
-            <input
-              id="website"
-              name="website"
-              value={form.website}
-              onChange={handleInputChange}
-              tabIndex={-1}
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="mt-8">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-300 sm:w-auto"
-            >
-              {isSubmitting ? "Submitting..." : "Submit early access survey"}
-            </button>
-            <p className={helpClass}>
-              Email or mobile is required so the WorkBridge team can follow up
-              when early access is ready.
-            </p>
-          </div>
-        </form>
+        </div>
       </div>
     </section>
   );

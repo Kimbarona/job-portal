@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
+        // The public survey endpoint is unauthenticated and session-independent
+        // (validated, honeypot-protected, and throttled), so it must not require
+        // a session CSRF token when posted from a stateful frontend origin.
+        $middleware->validateCsrfTokens(except: [
+            'api/survey-responses',
+        ]);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);

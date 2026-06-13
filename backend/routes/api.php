@@ -1,17 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\HealthController;
-use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Dashboard\DashboardController;
-use App\Http\Controllers\Api\Company\CompanyController;
-use App\Http\Controllers\Api\Job\JobController;
-use App\Http\Controllers\Api\Candidate\CandidateController;
-use App\Http\Controllers\Api\Employer\EmployerController;
 use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Candidate\CandidateController;
+use App\Http\Controllers\Api\Company\CompanyController;
+use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Employer\EmployerController;
+use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\Job\JobController;
+use App\Http\Controllers\Api\Survey\SurveyResponseController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
+Route::post('/survey-responses', [SurveyResponseController::class, 'store'])
+    ->middleware('throttle:10,1');
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);

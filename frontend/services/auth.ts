@@ -1,4 +1,5 @@
 import api from "./api";
+import { User } from "@/types";
 
 interface LoginCredentials {
   email: string;
@@ -17,12 +18,7 @@ interface AuthResponse {
   success: boolean;
   message: string;
   data: {
-    user: {
-      id: number;
-      name: string;
-      email: string;
-      role: string;
-    };
+    user: User;
     token: string;
   };
 }

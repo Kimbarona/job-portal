@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from "react";
 import { useAuthStore } from "@/store";
 import { authService } from "@/services/auth";
+import type { User } from "@/types";
 
 export function useAuth() {
   const { user, token, isAuthenticated, setAuth, clearAuth } = useAuthStore();
@@ -10,7 +11,14 @@ export function useAuth() {
   const login = useCallback(
     async (email: string, password: string) => {
       const response = await authService.login({ email, password });
-      const { user, token } = response.data.data;
+      const { user: rawUser, token } = response.data.data;
+      const user: User = {
+        ...rawUser,
+        role: rawUser.role as User["role"],
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       setAuth(user, token);
       return response.data;
     },
@@ -32,7 +40,14 @@ export function useAuth() {
         password_confirmation: passwordConfirmation,
         role,
       });
-      const { user, token } = response.data.data;
+      const { user: rawUser, token } = response.data.data;
+      const user: User = {
+        ...rawUser,
+        role: rawUser.role as User["role"],
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       setAuth(user, token);
       return response.data;
     },

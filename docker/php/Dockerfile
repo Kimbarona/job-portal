@@ -20,7 +20,7 @@ WORKDIR /var/www/backend
 
 COPY backend /var/www/backend
 
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 RUN php artisan storage:link || true
 

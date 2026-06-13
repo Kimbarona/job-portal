@@ -4,7 +4,7 @@ WORKDIR /var/www/frontend
 
 COPY frontend /var/www/frontend
 
-RUN npm ci
+RUN npm install
 
 RUN npm run build
 

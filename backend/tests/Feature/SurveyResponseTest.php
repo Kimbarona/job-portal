@@ -109,6 +109,35 @@ class SurveyResponseTest extends TestCase
             ->assertJsonValidationErrors(['offered_service_skill']);
     }
 
+    public function test_survey_can_be_submitted_from_stateful_frontend_origin(): void
+    {
+        // Sends the SPA origin (localhost:3000) that activates Sanctum's stateful
+        // middleware in the browser. CSRF enforcement is bypassed under PHPUnit
+        // (runningUnitTests), so this guards that the public survey route stays
+        // reachable and successful for the frontend origin; the authoritative
+        // 419 -> 201 proof is the real-browser verification.
+        $response = $this->postJson('/api/survey-responses', [
+            'name' => 'Stateful Origin',
+            'email' => 'stateful@example.com',
+            'location' => 'Cebu City',
+            'user_type' => 'client',
+            'needed_services' => ['Home and Repairs'],
+            'source' => 'landing_page',
+        ], [
+            'Origin' => 'http://localhost:3000',
+            'Referer' => 'http://localhost:3000/',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user_type', 'client');
+
+        $this->assertDatabaseHas('survey_responses', [
+            'email' => 'stateful@example.com',
+            'user_type' => 'client',
+        ]);
+    }
+
     public function test_honeypot_field_rejects_bot_submissions(): void
     {
         $response = $this->postJson('/api/survey-responses', [

@@ -46,6 +46,7 @@ return [
 
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
+        App\Providers\Filament\AdminPanelProvider::class,
     ],
     'aliases' => [
         'App' => Illuminate\Support\Facades\App::class,

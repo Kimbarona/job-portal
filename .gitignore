@@ -8,6 +8,10 @@ Thumbs.db
 vendor/
 *.log
 .env
+backend/.phpunit.result.cache
+backend/public/css/filament/
+backend/public/fonts/filament/
+backend/public/js/filament/
 
 # Node
 node_modules/

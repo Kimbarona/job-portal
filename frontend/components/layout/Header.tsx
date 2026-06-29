@@ -2,9 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const navItems = [
+interface NavItem {
+  href: string;
+  id?: string;
+  label: string;
+}
+
+const landingNavItems: NavItem[] = [
   { href: "/#why-workbridge", id: "why-workbridge", label: "Why WorkBridge" },
   { href: "/#features", id: "features", label: "Features" },
   { href: "/#how-it-works", id: "how-it-works", label: "How It Works" },
@@ -12,7 +19,31 @@ const navItems = [
   { href: "/#faq", id: "faq", label: "FAQ" },
 ];
 
-const trackedSectionIds = [
+const marketplaceNavItems: NavItem[] = [
+  {
+    href: "/marketplace#marketplace-how-it-works",
+    id: "marketplace-how-it-works",
+    label: "How it works",
+  },
+  {
+    href: "/marketplace#marketplace-services",
+    id: "marketplace-services",
+    label: "Services",
+  },
+  {
+    href: "/marketplace#marketplace-workers",
+    id: "marketplace-workers",
+    label: "Workers",
+  },
+  {
+    href: "/marketplace#marketplace-faq",
+    id: "marketplace-faq",
+    label: "FAQ",
+  },
+  { href: "/login", label: "Log in" },
+];
+
+const landingTrackedSectionIds = [
   "why-workbridge",
   "features",
   "how-it-works",
@@ -21,9 +52,24 @@ const trackedSectionIds = [
   "faq",
 ];
 
+const marketplaceTrackedSectionIds = [
+  "marketplace-how-it-works",
+  "marketplace-services",
+  "marketplace-workers",
+  "marketplace-faq",
+];
+
 const activeSectionOffset = 120;
 
 export default function Header() {
+  const pathname = usePathname();
+  const isMarketplace = pathname?.startsWith("/marketplace") ?? false;
+  const navItems = isMarketplace ? marketplaceNavItems : landingNavItems;
+  const trackedSectionIds = isMarketplace
+    ? marketplaceTrackedSectionIds
+    : landingTrackedSectionIds;
+  const ctaHref = isMarketplace ? "/register/client" : "/#survey";
+  const ctaLabel = isMarketplace ? "Get Started" : "Join early access";
   const [activeSection, setActiveSection] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,7 +122,7 @@ export default function Header() {
         window.cancelAnimationFrame(frameId);
       }
     };
-  }, []);
+  }, [trackedSectionIds]);
 
   useEffect(() => {
     const desktopQuery = window.matchMedia("(min-width: 1024px)");
@@ -120,8 +166,8 @@ export default function Header() {
     setIsMenuOpen(false);
   }
 
-  function getDesktopNavClass(sectionId: string) {
-    const isActive = activeSection === sectionId;
+  function getDesktopNavClass(sectionId?: string) {
+    const isActive = sectionId ? activeSection === sectionId : false;
 
     return [
       "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
@@ -132,8 +178,8 @@ export default function Header() {
     ].join(" ");
   }
 
-  function getMobileNavClass(sectionId: string) {
-    const isActive = activeSection === sectionId;
+  function getMobileNavClass(sectionId?: string) {
+    const isActive = sectionId ? activeSection === sectionId : false;
 
     return [
       "flex rounded-lg px-3 py-3 text-base font-semibold transition-colors",
@@ -185,7 +231,7 @@ export default function Header() {
         >
           {navItems.map((item) => (
             <Link
-              key={item.id}
+              key={item.href}
               href={item.href}
               className={getDesktopNavClass(item.id)}
               aria-current={activeSection === item.id ? "location" : undefined}
@@ -197,10 +243,10 @@ export default function Header() {
 
         <div className="hidden shrink-0 lg:flex">
           <Link
-            href="/#survey"
+            href={ctaHref}
             className="rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-orange-950/20 transition-colors hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-500"
           >
-            Join early access
+            {ctaLabel}
           </Link>
         </div>
 
@@ -244,7 +290,7 @@ export default function Header() {
           <nav className="grid gap-1" aria-label="Mobile primary">
             {navItems.map((item) => (
               <Link
-                key={item.id}
+                key={item.href}
                 href={item.href}
                 className={getMobileNavClass(item.id)}
                 aria-current={activeSection === item.id ? "location" : undefined}
@@ -256,11 +302,11 @@ export default function Header() {
           </nav>
           <div className="mt-4 border-t border-slate-200 pt-4">
             <Link
-              href="/#survey"
+              href={ctaHref}
               className="inline-flex w-full items-center justify-center rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-orange-950/20 transition-colors hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
               onClick={closeMenu}
             >
-              Join early access
+              {ctaLabel}
             </Link>
           </div>
         </div>

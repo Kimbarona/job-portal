@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-const footerLinks = [
+const landingFooterLinks = [
   { href: "/#why-workbridge", label: "Why WorkBridge" },
   { href: "/#features", label: "Features" },
   { href: "/#how-it-works", label: "How It Works" },
@@ -10,7 +13,20 @@ const footerLinks = [
   { href: "/#survey", label: "Join early access" },
 ];
 
+const marketplaceFooterLinks = [
+  { href: "/marketplace#marketplace-how-it-works", label: "How it works" },
+  { href: "/marketplace#marketplace-services", label: "Services" },
+  { href: "/marketplace#marketplace-workers", label: "Workers" },
+  { href: "/marketplace#marketplace-faq", label: "FAQ" },
+  { href: "/login", label: "Log in" },
+  { href: "/register/client", label: "Get Started" },
+];
+
 export default function Footer() {
+  const pathname = usePathname();
+  const isMarketplace = pathname?.startsWith("/marketplace") ?? false;
+  const footerLinks = isMarketplace ? marketplaceFooterLinks : landingFooterLinks;
+
   return (
     <footer className="border-t border-white/10 bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -43,8 +59,9 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-4 max-w-lg text-sm leading-6 text-slate-300">
-              WorkBridge helps clients discover trusted local professionals,
-              freelancers, service providers, and trade workers.
+              {isMarketplace
+                ? "Find trusted local professionals, compare verified profiles, and request services with confidence."
+                : "WorkBridge helps clients discover trusted local professionals, freelancers, service providers, and trade workers."}
             </p>
           </div>
 
@@ -53,7 +70,9 @@ export default function Footer() {
             className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3 lg:min-w-[28rem]"
           >
             {footerLinks.map((link) => {
-              const isPrimary = link.href === "/#survey";
+              const isPrimary = isMarketplace
+                ? link.href === "/register/client"
+                : link.href === "/#survey";
 
               return (
                 <Link
